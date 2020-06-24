@@ -53,7 +53,7 @@ Lastly, you need to enable the necessary plugins in the Unreal editor by:
 Once that's done, restart the Unreal Editor for the plugin changes to take effect. The project is now ready to use Azure Spatial Anchors.
 
 ## Starting a Spatial Anchors session
-// TODO: Add in overview of what an azure spatial anchors session is/does.
+An Azure Spatial Anchors session allows client applications to communicate with the Azure Spatial Anchors service. In order to create, persist and share Azure Spatial Anchors, you will need to first create and start an Azure Spatial Anchors session.
 
 * Open the blueprint for the Pawn you're using in the application.
 * Add two string variables for the **Account Id** and **Account Key**, then assign the corresponding values from your Azure Spatial Anchors account to authenticate the session.
@@ -66,78 +66,79 @@ In order to start an Azure Spatial Anchors session:
 * Create an Azure Spatial Anchors session. 
     * Creating a session does not start the session by default, which allows the developer to configure the session for authentication with the Azure Spatial Anchors service.
 
-//TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-03.png)
 
 * Configure the Azure Spatial Anchors session to provide the **Account Id** and **Account Key**. 
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-04.png)
 
 * Start the Azure Spatial Anchors session, allowing the application to create and locate Azure Spatial Anchors.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-05.png)
 
 It's good practice to clean up Azure Spatial Anchors resources in your Event Graph blueprint when you're no longer using the service:
 * First, stop the Azure Spatial Anchors session. 
     * At this point, the session will no longer be running, but its associated resources will still exist in the Azure Spatial Anchors plugin.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-06.png)
 
 * Then destroy the Azure Spatial Anchors session. 
     * This will clean up any Azure Spatial Anchors session resources still known to the Azure Spatial Anchors plugin.
 
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-07.png)
 
 Your Event Graph blueprint should look like the screenshot below:
 
-![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-03.png)
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-08.png)
 
 
 ## Creating an anchor
-// TODO: Add in overview of what an azure spatial anchors is and how it persists.
+An Azure Spatial Anchor represents a physical world pose in the augmented reality application space. Azure Spatial Anchors can be used to lock augmented reality content to locations in the physical world. Azure Spatial Anchors can also be shared amongst different users so that augmented reality content drawn on different devices is positioned in the same location in the physical world. To create a new Azure Spatial Anchor, follow the instructions below.
 
 * First, ensure an Azure Spatial Anchors session is running. 
     * The application won't be able to create or persist an Azure Spatial Anchor when no Azure Spatial Anchors session is running.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-09.png)
 
 * Next, create or obtain an Unreal **[Scene Component](https://docs.unrealengine.com/API/Runtime/Engine/Components/USceneComponent/index.html)** that should have it's location persisted. In the below image, we are using the **Scene Component Needing Anchor** component declared as a variable. 
     * An Unreal Scene Component is needed in order to establish an application world transform for an [AR Pin](https://docs.unrealengine.com/BlueprintAPI/HoloLensAR/ARPin/index.html) and Azure Spatial Anchor.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-10.png)
 
 To construct and save an Azure Spatial Anchor for the desired Unreal Scene Component: 
 * Call the [Pin Component](https://docs.unrealengine.com/BlueprintAPI/ARAugmentedReality/Pin/PinComponent/index.html) for the Unreal Scene Component and specify the Scene Component's **World Transform** as the World Transform used for the AR Pin. 
     * This creates an AR Pin, which is how Unreal tracks AR points in the application space, which is used to create an Azure Spatial Anchor.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-11.png)
 
 * Call **Create Cloud Anchor** using the newly created AR Pin. 
     * This function creates an Azure Spatial Anchor locally but not in the Azure Spatial Anchor service. This allows parameters for the Azure Spatial Anchor, such as as an expiration date, to be set prior to creating the Azure Spatial Anchor with the service.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-12.png)
 
 * Set the Azure Spatial Anchor expiration. This function's Lifetime parameter allows the developer to specify in seconds how long the anchor should be maintained by the service. 
     * For example, a week long expiration would take a value of 60 seconds x 60 minutes x 24 hours x 7 days = 604,800 seconds.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-13.png)
 
 After setting anchor parameters, declare the anchor as ready to save. In the example below, the newly created Azure Spatial Anchor is added to a set of Azure Spatial Anchors needing saving. This set is declared as a variable for the Pawn blueprint.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-14.png)
 
 ## Saving an Anchor
 
 After configuring the Azure Spatial Anchor with your desired parameters call **Save Cloud Anchor**, which declares the anchor to the Azure Spatial Anchors service. Once a call to Save Cloud Anchor succeeds, the associated Azure Spatial Anchor will be available for other users using Azure Spatial Anchor service.  
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-15.png)
 
 > [!NOTE]
-> Save Cloud Anchor is a latent function and can only be called on a game thread event such as **EventTick**. Save Cloud Anchor may not appear as an available blueprint function in custom blueprint Macros/Functions. However, it should be available in the Pawn Event Graph blueprint editor.
+> Save Cloud Anchor is a latent function and can only be called on a game thread event such as **EventTick**. Save Cloud Anchor may not appear as an available blueprint function in custom blueprint Functions. However, it should be available in the Pawn Event Graph blueprint editor.
 
 In the example below, the Azure Spatial Anchor is stored in a set during an input event callback then saved on the Event tick. Saving an Azure Spatial Anchor may take multiple attempts depending on the amount of spatial data that your Azure Spatial Anchors session has created. Therefore, it's a good idea to check whether the save call succeeded. 
 
 If it didn't save you can re-add the anchor to the set of anchors still needing to be saved. Subsequent EventTicks will then re-attempt saving the anchor until it is successfully saved with the Azure Spatial Anchor service.
 
-![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-04.png)
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-16.png)
 
 Once the Azure Spatial Anchor is saved, you can use the transform of its associated AR Pin as a reference transform for placing content in the application. As other users in the application also detect this anchor, AR content can be aligned for different devices in the physical world.
 
@@ -145,16 +146,16 @@ Once the Azure Spatial Anchor is saved, you can use the transform of its associa
 
 In addition to saving an anchor, developers can delete anchors from the Azure Spatial Anchor service by calling **Delete Cloud Anchor**. 
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-17.png)
 
 > [!NOTE] 
-> Delete Cloud Anchor is a latent function and can only be called on a game thread event, such as Event Tick. Delete Cloud Anchor may not appear as an available blueprint function in custom blueprint Macros/Functions. It should however be available in the Pawn Event Graph blueprint editor.
+> Delete Cloud Anchor is a latent function and can only be called on a game thread event, such as Event Tick. Delete Cloud Anchor may not appear as an available blueprint function in custom blueprint Functions. It should however be available in the Pawn Event Graph blueprint editor.
 
 In the example below, the anchor is flagged for deletion on a custom input event, then the deletion is attempted on the EventTick. If deleting the anchor fails, we re-add the Azure Spatial Anchor to the set of anchors flagged for deletion and try again on subsequent EventTicks.
 
 Your Event Graph blueprint should now look like the screenshot below:
 
-![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-05.png)
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-18.png)
 
 
 ## Locating preexisting anchors
@@ -163,11 +164,13 @@ In addition to creating Azure Spatial Anchors, you can detect anchors created by
 * First, add an **AzureSpatialAnchorsEvent** component to your Pawn blueprint. 
     * This component allows you to subscribe to various Azure Spatial Anchors events, such as events called when Azure Spatial Anchors are located.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-19.png)
 
 * Next, subscribe to the **ASAAnchor Located Delegate** for the **AzureSpatialAnchorsEvent** component. 
     * This delegate lets the application to know when new anchors associated with the Azure Spatial Anchors account have been located. 
     * With this event callback, Azure Spatial Anchors created by peers using the Azure Spatial Anchors session will not have AR Pins created by default. To create an AR Pin for the detected Azure Spatial Anchor, developers can call **Create ARPin Around Azure Cloud Spatial Anchor**.
+
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-20.png)
 
 In order to locate Azure Spatial Anchors created by peers using the Azure Spatial Anchor service, the application will have to create an **Azure Spatial Anchors Watcher**: 
 * Check that an Azure Spatial Anchors session is running.
@@ -175,18 +178,18 @@ In order to locate Azure Spatial Anchors created by peers using the Azure Spatia
     * There are various location criteria parameters that can be specified, such as a distance from the user or distance from another anchors.
 * Call **Create Watcher**.
 
-// TODO: Add image for these step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-21.png)
 
 The application now begins looking for Azure Spatial Anchors known to the Azure Spatial Anchors service. This means that users can locate Azure Spatial Anchors created by their peers.
 
 After locating the desired Azure Spatial Anchor: 
 * Call **Stop Watcher** to stop the Azure Spatial Anchors Watcher and clean up watcher resources.
 
-// TODO: Add image for this step
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-22.png)
 
 Your final Event Graph blueprint should now look like the screenshot below:
 
-![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-06.png)
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-23.png)
 
 
 ## See also
