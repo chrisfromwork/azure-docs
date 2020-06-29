@@ -161,35 +161,41 @@ Your Event Graph blueprint should now look like the screenshot below:
 ## Locating preexisting anchors
 
 In addition to creating Azure Spatial Anchors, you can detect anchors created by peers with the Azure Spatial Anchors service:
-* First, add an **AzureSpatialAnchorsEvent** component to your Pawn blueprint. 
-    * This component allows you to subscribe to various Azure Spatial Anchors events, such as events called when Azure Spatial Anchors are located.
+* First, obtain an Azure Spatial Anchor identifier for the anchor that you would like to detect.
+    * An anchor identifier can be obtained for an anchor created by the same device in a previous Azure Spatial Anchors session. It can also be created and shared by peer devices interacting with the Azure Spatial Anchors service. 
 
 ![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-19.png)
 
-* Next, subscribe to the **ASAAnchor Located Delegate** for the **AzureSpatialAnchorsEvent** component. 
+* Next, add an **AzureSpatialAnchorsEvent** component to your Pawn blueprint. 
+    * This component allows you to subscribe to various Azure Spatial Anchors events, such as events called when Azure Spatial Anchors are located.
+
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-20.png)
+
+* Subscribe to the **ASAAnchor Located Delegate** for the **AzureSpatialAnchorsEvent** component. 
     * This delegate lets the application to know when new anchors associated with the Azure Spatial Anchors account have been located. 
     * With this event callback, Azure Spatial Anchors created by peers using the Azure Spatial Anchors session will not have AR Pins created by default. To create an AR Pin for the detected Azure Spatial Anchor, developers can call **Create ARPin Around Azure Cloud Spatial Anchor**.
 
-![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-20.png)
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-21.png)
 
 In order to locate Azure Spatial Anchors created by peers using the Azure Spatial Anchor service, the application will have to create an **Azure Spatial Anchors Watcher**: 
 * Check that an Azure Spatial Anchors session is running.
 * Create an **AzureSpatialAnchorsLocateCriteria**. 
     * There are various location criteria parameters that can be specified, such as a distance from the user or distance from another anchors.
+* Declare your desired Azure Spatial Anchor identifier in the **AzureSpatialAnchorsLocateCritieria**.
 * Call **Create Watcher**.
 
-![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-21.png)
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-22.png)
 
 The application now begins looking for Azure Spatial Anchors known to the Azure Spatial Anchors service. This means that users can locate Azure Spatial Anchors created by their peers.
 
 After locating the desired Azure Spatial Anchor: 
 * Call **Stop Watcher** to stop the Azure Spatial Anchors Watcher and clean up watcher resources.
 
-![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-22.png)
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-23.png)
 
 Your final Event Graph blueprint should now look like the screenshot below:
 
-![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-23.png)
+![Spatial Anchors plugins](../media/unreal-spatial-anchors-img-24.png)
 
 
 ## See also
